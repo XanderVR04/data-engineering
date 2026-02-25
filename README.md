@@ -1,4 +1,4 @@
-# Weather Data Engineering Project (Beginner-Friendly Guide)
+# Weather Data Engineering Project
 
 ## 1) What is this repository?
 
