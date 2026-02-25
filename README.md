@@ -144,11 +144,11 @@ You need:
 
 ## 7) Before first run: important credential note
 
-In the current `docker-compose.yml`, credentials are written directly in the file.
-That works for local school/lab use, but in real projects this is unsafe.
+Credentials are loaded from a root `.env` file.
 
-For learning purposes, you can run as-is.
-For better practice, move secrets to a `.env` file.
+1. Copy `.env.example` to `.env`.
+2. Fill in your own values (especially `KAGGLE_USERNAME`, `KAGGLE_KEY`, and passwords).
+3. Keep `.env` private (it is ignored by git).
 
 ---
 
@@ -319,13 +319,11 @@ docker compose up --build
 
 Good next steps for learning and better engineering practice:
 
-1. Move credentials to `.env` and ignore it in git.
-2. Add an API root endpoint (`GET /`) and API docs description.
-3. Add more filtered endpoints (by station/date/month).
-4. Add data validation (null handling, schema checks).
-5. Replace `if_exists='replace'` with incremental loading.
-6. Add tests for ETL transformations and API endpoints.
-7. Add logging instead of plain `print` statements.
+1. Add more filtered endpoints (by station/date/month).
+2. Add data validation (null handling, schema checks).
+3. Replace `if_exists='replace'` with incremental loading.
+4. Add tests for ETL transformations and API endpoints.
+5. Add structured logging instead of plain `print` statements.
 
 ---
 

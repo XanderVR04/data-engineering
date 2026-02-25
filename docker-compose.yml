@@ -1,34 +1,30 @@
 ﻿services:
-  # 1. De Database
   db:
     image: postgres:15
     container_name: weather_db
     environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: weatherdb
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
 
-  # 2. De data_import (Data ophalen -> Raw -> DB)
   data_import:
     build: ./data_import
     container_name: data_import_container
     depends_on:
       - db
     environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: weatherdb
-      # Vul hier je Kaggle API gegevens in!
-      KAGGLE_USERNAME: XanderVR00
-      KAGGLE_KEY: KGAT_0fe31149923aab674bc8d0f58686a63f
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      KAGGLE_USERNAME: ${KAGGLE_USERNAME}
+      KAGGLE_KEY: ${KAGGLE_KEY}
     volumes:
-      - ./data/raw:/data/raw  # Hier wordt de raw CSV opgeslagen
+      - ./data/raw:/data/raw  
 
-  # 3. De API (Om data op te vragen)
   api:
     build: ./api
     container_name: weather_api
@@ -37,17 +33,16 @@
     depends_on:
       - db
     environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: weatherdb
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
 
-  # 4. Beheerinterface (Optioneel)
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin_container
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: root
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     ports:
       - "8080:80"
     depends_on:
