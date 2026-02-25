@@ -44,6 +44,8 @@ The project runs with Docker Compose and starts **4 containers/services**:
 
 ```text
 .
+├── .env.example
+├── .gitignore
 ├── docker-compose.yml
 ├── init.sql
 ├── README.md
@@ -60,6 +62,13 @@ The project runs with Docker Compose and starts **4 containers/services**:
 ```
 
 ### Root files
+
+- **.env.example**
+  - Template with all required environment variables.
+  - Copy to `.env` and fill in your own values.
+
+- **.gitignore**
+  - Ignores local files like `.env` and data folders that should not be committed.
 
 - **docker-compose.yml**
   - Central orchestrator.
@@ -178,6 +187,7 @@ What this does:
 
 Open browser:
 
+- `http://localhost:8000/`
 - `http://localhost:8000/data`
 
 You should see JSON output (a list of weather rows).
@@ -203,15 +213,15 @@ pgAdmin is available at:
 - `http://localhost:8080`
 
 Login credentials (from compose):
-- Email: `admin@admin.com`
-- Password: `root`
+- Email: value of `PGADMIN_DEFAULT_EMAIL` in `.env`
+- Password: value of `PGADMIN_DEFAULT_PASSWORD` in `.env`
 
 Then connect to PostgreSQL server with:
 - Host: `db`
 - Port: `5432`
-- Database: `weatherdb`
-- User: `myuser`
-- Password: `mypassword`
+- Database: value of `POSTGRES_DB` in `.env`
+- User: value of `POSTGRES_USER` in `.env`
+- Password: value of `POSTGRES_PASSWORD` in `.env`
 
 This lets you inspect `weather_data` table directly.
 
@@ -258,6 +268,9 @@ This lets you inspect `weather_data` table directly.
 - This prevents serving empty responses during startup.
 
 ### Endpoint
+- `GET /`
+- Returns: `{"message": "Welcome to the Weather Data API"}`
+
 - `GET /data?limit=100`
 - Executes SQL:
 
