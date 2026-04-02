@@ -221,12 +221,12 @@
   ],
   "refresh": "5m",
   "schemaVersion": 38,
-  "tags": ["productie", "energie"],
+  "tags": [],
   "templating": { "list": [] },
-  "time": { "from": "now-2y", "to": "now" },
+  "time": { "from": "now-5y", "to": "now" },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Productie Data",
+  "title": "Production Data",
   "uid": "productie-dashboard",
   "version": 1
 }

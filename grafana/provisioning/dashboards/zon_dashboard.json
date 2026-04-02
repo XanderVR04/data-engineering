@@ -217,12 +217,12 @@
   ],
   "refresh": "5m",
   "schemaVersion": 38,
-  "tags": ["zon", "straling"],
+  "tags": [],
   "templating": { "list": [] },
   "time": { "from": "now-5y", "to": "now" },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Zon Data",
+  "title": "Sun Data",
   "uid": "zon-dashboard",
   "version": 1
 }

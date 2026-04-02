@@ -19,7 +19,7 @@ def _run_script(path: str, timeout: int = 1200):
 
 
 with DAG(
-    dag_id='wind_pipeline',
+    dag_id='wind',
     default_args=default_args,
     start_date=datetime(2026, 3, 1),
     schedule_interval='*/10 * * * *',

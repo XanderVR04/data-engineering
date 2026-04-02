@@ -1,7 +1,7 @@
 import os
 import sys
 import pandas as pd
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from db_config import get_database_url
@@ -52,5 +52,17 @@ combined = combined.sort_values('date').reset_index(drop=True)
 wind_cols = [c for c in combined.columns if c != 'date']
 combined[wind_cols] = combined[wind_cols].round(2)
 
-combined.to_sql('Wind', engine, if_exists='replace', index=False)
+combined.to_sql('wind', engine, if_exists='replace', index=False)
 print(f"Succes! Wind tabel aangemaakt met {len(combined)} rijen.")
+
+# Drop the intermediate source tables — only the combined 'wind' table should remain
+source_tables = [
+    os.getenv("TABLE_KMI_AWS", "GEO"),
+    os.getenv("TABLE_KAGGLE_UKKEL", "Ukkel"),
+    os.getenv("TABLE_ECMWF", "ECMWF"),
+]
+with engine.connect() as conn:
+    for table in source_tables:
+        conn.execute(text(f'DROP TABLE IF EXISTS "{table}"'))
+    conn.commit()
+print(f"Tussentijdse tabellen verwijderd: {source_tables}")

@@ -204,12 +204,12 @@
   ],
   "refresh": "5m",
   "schemaVersion": 38,
-  "tags": ["consumptie", "energie"],
+  "tags": [],
   "templating": { "list": [] },
-  "time": { "from": "now-2y", "to": "now" },
+  "time": { "from": "now-5y", "to": "now" },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Consumptie Data",
+  "title": "Consumption Data",
   "uid": "consumptie-dashboard",
   "version": 1
 }

@@ -127,7 +127,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  date AS \"time\",\n  geo_windspeed_10m AS \"GEO 10m\",\n  geo_windspeed_30m AS \"GEO 30m\",\n  ukkel_windspeed_10m AS \"Ukkel 10m\",\n  ukkel_windspeed_30m AS \"Ukkel 30m\",\n  ecmwf_windspeed_10m AS \"ECMWF 10m\"\nFROM \"Wind\"\nWHERE $__timeFilter(date)\nORDER BY 1",
+          "rawSql": "SELECT\n  date AS \"time\",\n  geo_windspeed_10m AS \"GEO 10m\",\n  geo_windspeed_30m AS \"GEO 30m\",\n  ukkel_windspeed_10m AS \"Ukkel 10m\",\n  ukkel_windspeed_30m AS \"Ukkel 30m\",\n  ecmwf_windspeed_10m AS \"ECMWF 10m\"\nFROM wind\nWHERE $__timeFilter(date)\nORDER BY 1",
           "refId": "A",
           "sql": {
             "columns": [],
@@ -197,7 +197,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  date AS \"time\",\n  geo_windspeed_10m AS \"GEO 10m\",\n  geo_windspeed_30m AS \"GEO 30m\"\nFROM \"Wind\"\nWHERE $__timeFilter(date)\nORDER BY 1",
+          "rawSql": "SELECT\n  date AS \"time\",\n  geo_windspeed_10m AS \"GEO 10m\",\n  geo_windspeed_30m AS \"GEO 30m\"\nFROM wind\nWHERE $__timeFilter(date)\nORDER BY 1",
           "refId": "A",
           "sql": { "columns": [], "groupBy": [], "limit": 50 }
         }
@@ -263,7 +263,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  date AS \"time\",\n  ukkel_windspeed_10m AS \"Ukkel 10m\",\n  ukkel_windspeed_30m AS \"Ukkel 30m\"\nFROM \"Wind\"\nWHERE $__timeFilter(date)\nORDER BY 1",
+          "rawSql": "SELECT\n  date AS \"time\",\n  ukkel_windspeed_10m AS \"Ukkel 10m\",\n  ukkel_windspeed_30m AS \"Ukkel 30m\"\nFROM wind\nWHERE $__timeFilter(date)\nORDER BY 1",
           "refId": "A",
           "sql": { "columns": [], "groupBy": [], "limit": 50 }
         }
@@ -329,7 +329,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  date AS \"time\",\n  ecmwf_windspeed_10m AS \"ECMWF 10m\"\nFROM \"Wind\"\nWHERE $__timeFilter(date)\nORDER BY 1",
+          "rawSql": "SELECT\n  date AS \"time\",\n  ecmwf_windspeed_10m AS \"ECMWF 10m\"\nFROM wind\nWHERE $__timeFilter(date)\nORDER BY 1",
           "refId": "A",
           "sql": { "columns": [], "groupBy": [], "limit": 50 }
         }
@@ -340,9 +340,9 @@
   ],
   "refresh": "5m",
   "schemaVersion": 38,
-  "tags": ["wind", "weather"],
+  "tags": [],
   "templating": { "list": [] },
-  "time": { "from": "now-1y", "to": "now" },
+  "time": { "from": "now-5y", "to": "now" },
   "timepicker": {},
   "timezone": "browser",
   "title": "Wind Data",
