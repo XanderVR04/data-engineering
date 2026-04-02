@@ -1,0 +1,46 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=weather_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_p2:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d weather_db -h localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgres
+
+  airflow:
+    build: .
+    container_name: airflow
+    env_file:
+      - scripts/.env
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+    ports:
+      - "8085:8080"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - .:/app
+    command: standalone
+
+volumes:
+  postgres_data_p2:
