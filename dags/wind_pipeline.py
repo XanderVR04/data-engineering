@@ -15,7 +15,17 @@ default_args = {
 def _run_script(path: str, timeout: int = 1200):
     script = os.path.abspath(path)
     print(f"Running script: {script}")
-    subprocess.run([sys.executable, script], check=True, timeout=timeout)
+    result = subprocess.run(
+        [sys.executable, script],
+        check=False,
+        timeout=timeout,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    print(result.stdout or "")
+    if result.returncode != 0:
+        raise subprocess.CalledProcessError(result.returncode, script)
 
 
 with DAG(

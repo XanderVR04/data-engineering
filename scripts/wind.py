@@ -1,20 +1,24 @@
 import os
 import sys
 import pandas as pd
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from db_config import get_database_url
 
 engine = create_engine(get_database_url())
 
+TABLE_GEO = os.getenv("TABLE_KMI_AWS", "kmi_aws_hourly")
+TABLE_UKKEL = os.getenv("TABLE_KAGGLE_UKKEL", "kaggle_station_daily")
+TABLE_ECMWF = os.getenv("TABLE_ECMWF", "ECMWF")
+
 # GEO (KMI): average across stations per day, wind speeds in m/s
 geo = pd.read_sql(
-    '''
+    f'''
     SELECT date::date                  AS date,
            AVG(wind_speed_10m)         AS GEO_windspeed_10m,
            AVG(wind_speed_avg_30m)     AS GEO_windspeed_30m
-    FROM "GEO"
+    FROM "{TABLE_GEO}"
     GROUP BY date::date
     ''',
     engine,
@@ -22,11 +26,11 @@ geo = pd.read_sql(
 
 # Ukkel: average across stations per day, wind speeds in m/s
 ukkel = pd.read_sql(
-    '''
+    f'''
     SELECT timestamp::date             AS date,
            AVG(wind_speed_10m)         AS Ukkel_windspeed_10m,
            AVG(wind_speed_avg_30m)     AS Ukkel_windspeed_30m
-    FROM "Ukkel"
+    FROM "{TABLE_UKKEL}"
     GROUP BY timestamp::date
     ''',
     engine,
@@ -34,10 +38,10 @@ ukkel = pd.read_sql(
 
 # ECMWF: one row per day, wind speed in m/s (no 30m available)
 ecmwf = pd.read_sql(
-    '''
+    f'''
     SELECT date::date                  AS date,
            wind_speed_10m              AS ECMWF_windspeed_10m
-    FROM "ECMWF"
+    FROM "{TABLE_ECMWF}"
     ''',
     engine,
 )
@@ -54,15 +58,4 @@ combined[wind_cols] = combined[wind_cols].round(2)
 
 combined.to_sql('wind', engine, if_exists='replace', index=False)
 print(f"Succes! Wind tabel aangemaakt met {len(combined)} rijen.")
-
-# Drop the intermediate source tables — only the combined 'wind' table should remain
-source_tables = [
-    os.getenv("TABLE_KMI_AWS", "GEO"),
-    os.getenv("TABLE_KAGGLE_UKKEL", "Ukkel"),
-    os.getenv("TABLE_ECMWF", "ECMWF"),
-]
-with engine.connect() as conn:
-    for table in source_tables:
-        conn.execute(text(f'DROP TABLE IF EXISTS "{table}"'))
-    conn.commit()
-print(f"Tussentijdse tabellen verwijderd: {source_tables}")
+print(f"Brondata blijft bewaard in tabellen: {TABLE_GEO}, {TABLE_UKKEL}, {TABLE_ECMWF}")
