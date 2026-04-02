@@ -1,36 +1,53 @@
-# wind-data
+# data-engineering
 
-Docker-based data engineering pipeline that collects Belgian wind and weather data from three sources, aggregates it to daily averages, and stores everything in PostgreSQL — orchestrated by Apache Airflow.
+Docker-based data engineering pipeline that collects Belgian wind, energy consumption, energy production, and solar data from multiple sources, stores everything in PostgreSQL, and visualizes it with Grafana — orchestrated by Apache Airflow.
 
 ## Architecture
 
 ```
-KMI/AWS WFS API  ──────────────────► GEO table          ─┐
-Kaggle (Uccle stations) ───────────► kaggle_ukkel table  ─┼──► wind_combined table
-Open-Meteo ECMWF IFS ──────────────► ECMWF table         ─┘
+                        WIND PIPELINE (every 10 minutes)
+KMI/AWS WFS API  ──────────────────► GEO table         ─┐
+Kaggle (Uccle stations) ───────────► kaggle_ukkel table ─┼──► wind table
+Open-Meteo ECMWF IFS ──────────────► ECMWF table        ─┘
 
-                 Airflow DAG (wind_pipeline) — runs every 10 minutes
+                        MANUAL PIPELINES (trigger once)
+consumptie.csv ────────────────────────────────────────────► consumptie table
+productie.csv  ────────────────────────────────────────────► productie table
+zon.csv        ────────────────────────────────────────────► zon table
+
+                        VISUALIZATION
+PostgreSQL ─────────────────────────────────────────────────► Grafana dashboards (4x)
 ```
 
 ## Data sources
 
+### Wind pipeline (automated)
+
 | Script | Source | Table | Granularity |
 |---|---|---|---|
-| `GEO.py` | KMI/AWS WFS API — Belgian weather stations | `GEO` | Hourly → daily average |
-| `kaggleUkkel.py` | Kaggle — 8 Belgian meteorological stations | `kaggle_ukkel` | Daily |
-| `ECMWF.py` | Open-Meteo ECMWF IFS forecast | `ECMWF` | Hourly → daily average |
-| `wind.py` | Combines the three sources above | `wind_combined` | Daily |
+| `GEO.py` | KMI/AWS WFS API — Belgian weather stations | `GEO` (intermediate) | Hourly → daily average |
+| `kaggleUkkel.py` | Kaggle — 8 Belgian meteorological stations | `kaggle_ukkel` (intermediate) | Daily |
+| `ECMWF.py` | Open-Meteo ECMWF IFS forecast | `ECMWF` (intermediate) | Hourly → daily average |
+| `wind.py` | Combines the three sources above | `wind` | Daily |
 
-The `wind_combined` table is the main output. It contains daily wind speed values (m/s) for each source side by side:
+The intermediate tables (`GEO`, `kaggle_ukkel`, `ECMWF`) are dropped after each run. The `wind` table is the final output and contains daily wind speed values (m/s) from all sources side by side:
 
 | Column | Description |
 |---|---|
 | `date` | Day |
-| `geo_windspeed_10m` | KMI — wind speed at 10 m (m/s) |
-| `geo_windspeed_30m` | KMI — wind speed at 30 m (m/s) |
-| `ukkel_windspeed_10m` | Kaggle Uccle — wind speed at 10 m (m/s) |
-| `ukkel_windspeed_30m` | Kaggle Uccle — wind speed at 30 m (m/s) |
-| `ecmwf_windspeed_10m` | ECMWF forecast — wind speed at 10 m (m/s) |
+| `GEO_windspeed_10m` | KMI — wind speed at 10 m (m/s) |
+| `GEO_windspeed_30m` | KMI — wind speed at 30 m (m/s) |
+| `Ukkel_windspeed_10m` | Kaggle Uccle — wind speed at 10 m (m/s) |
+| `Ukkel_windspeed_30m` | Kaggle Uccle — wind speed at 30 m (m/s) |
+| `ECMWF_windspeed_10m` | ECMWF forecast — wind speed at 10 m (m/s) |
+
+### Static pipelines (manual trigger)
+
+| Script | Source file | Table |
+|---|---|---|
+| `data-scripts/consumptie.py` | `data/consumptie.csv` | `consumptie` |
+| `data-scripts/productie.py` | `data/productie.csv` | `productie` |
+| `data-scripts/zon.py` | `data/zon.csv` | `zon` |
 
 ---
 
@@ -56,6 +73,7 @@ cp scripts/.env.example scripts/.env
 ```
 
 Edit `scripts/.env`:
+
 ```env
 DB_HOST=postgres
 DB_PORT=5432
@@ -75,40 +93,72 @@ KAGGLE_KEY=your_kaggle_api_key
 
 > Your Kaggle API key is at https://www.kaggle.com → Account → API → *Create New Token*.
 
-### 2. Build and start
+### 2. Add static CSV files
+
+Place the required CSV files in the `data/` directory before running the manual pipelines:
+
+```
+data/
+├── consumptie.csv
+├── productie.csv
+└── zon.csv
+```
+
+### 3. Build and start
 
 ```bash
 docker compose up --build -d
 ```
 
-This starts PostgreSQL, pgAdmin and Airflow. The first build takes a few minutes to install all Python dependencies.
+This starts PostgreSQL, pgAdmin, Airflow, and Grafana. The first build takes a few minutes to install all Python dependencies.
 
-### 3. Get the Airflow password
+### 4. Get the Airflow password
 
 On first start, Airflow generates an admin password. Retrieve it with:
 
 ```bash
-docker logs airflow | Select-String "Login with username"   # PowerShell
 docker logs airflow | grep "Login with username"            # bash/macOS
+docker logs airflow | Select-String "Login with username"   # PowerShell
 ```
 
 Then open http://localhost:8085 and log in with `admin` and the generated password.
 
-### 4. Run the pipeline
+### 5. Run the pipelines
 
-1. In the Airflow UI, find the **`wind_pipeline`** DAG
+Open http://localhost:8085 and find the following DAGs:
+
+#### Wind pipeline (automated)
+
+1. Find the **`wind_pipeline`** DAG
 2. Toggle it **on** (unpause)
 3. Click ▶ **Trigger DAG** to run it immediately
 
-The pipeline fetches all three sources, aggregates to daily averages, and builds the `wind_combined` table. It re-runs automatically every 10 minutes to refresh the ECMWF forecast data.
+The pipeline fetches all three wind sources, aggregates them to daily averages, builds the `wind` table, and then drops the intermediate tables. It re-runs automatically every 10 minutes to refresh the ECMWF forecast data.
 
-### 5. Visualize data in Grafana
+#### Static pipelines (manual, run once)
+
+Trigger each of the following DAGs manually after placing the corresponding CSV files in `data/`:
+
+| DAG | Reads | Writes |
+|---|---|---|
+| `consumptie_pipeline` | `data/consumptie.csv` | `consumptie` table |
+| `productie_pipeline` | `data/productie.csv` | `productie` table |
+| `zon_pipeline` | `data/zon.csv` | `zon` table |
+
+### 6. Visualize data in Grafana
 
 1. Open http://localhost:3000
 2. Log in with `admin` / `admin` (you'll be asked to set a new password on first login)
-3. Go to **Dashboards** in the left sidebar — the **Wind Data** dashboard is pre-loaded automatically
+3. Go to **Dashboards** in the left sidebar — four dashboards are pre-loaded automatically
 
-The dashboard contains four panels, all reading from the `Wind` table in PostgreSQL:
+| Dashboard | Data source | Description |
+|---|---|---|
+| **Wind Data** | `wind` table | Wind speeds from all three sources (KMI, Kaggle, ECMWF) |
+| **Consumptie** | `consumptie` table | Energy consumption over time |
+| **Productie** | `productie` table | Energy production over time |
+| **Zon** | `zon` table | Solar data over time |
+
+The Wind Data dashboard contains four panels:
 
 | Panel | What you see |
 |---|---|
@@ -117,11 +167,9 @@ The dashboard contains four panels, all reading from the `Wind` table in Postgre
 | **Ukkel Wind Speeds** | Kaggle Uccle station data at 10 m and 30 m height |
 | **ECMWF Wind Speed** | ECMWF forecast wind speed at 10 m |
 
-**Important:** where a source has no data for a date (NULL), the line is intentionally broken — no value is invented to bridge the gap.
+Where a source has no data for a date (NULL), the line is intentionally broken — no value is invented to bridge the gap. All dashboards auto-refresh every 5 minutes.
 
-You can adjust the time range with the picker in the top-right corner of the dashboard. The dashboard auto-refreshes every 5 minutes, so it stays up to date as Airflow keeps adding data.
-
-### 6. View data in pgAdmin
+### 7. View data in pgAdmin
 
 1. Open http://localhost:8080
 2. Log in with `admin@admin.com` / `admin`
@@ -131,7 +179,7 @@ You can adjust the time range with the picker in the top-right corner of the das
    - **Database:** `weather_db`
    - **Username:** `admin`
    - **Password:** `password`
-4. Browse to **Schemas → public → Tables** to see `GEO`, `ECMWF`, `kaggle_ukkel` and `wind_combined`
+4. Browse to **Schemas → public → Tables** to see all tables (`wind`, `consumptie`, `productie`, `zon`)
 
 ---
 
@@ -160,3 +208,5 @@ docker compose down -v       # stop containers and delete database volume
 | `KAGGLE_USERNAME` | — | Kaggle username |
 | `KAGGLE_KEY` | — | Kaggle API key |
 | `FORCE_RELOAD` | `0` | Set to `1` to re-fetch KMI data even if the table already has rows |
+| `MAX_WAIT_FOR_DB_SECONDS` | `120` | How long to wait for PostgreSQL to become available on startup |
+| `DB_RETRY_SLEEP_SECONDS` | `5` | Seconds between database connection retries |
