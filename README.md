@@ -41,6 +41,7 @@ The `wind_combined` table is the main output. It contains daily wind speed value
 | PostgreSQL | `localhost:5432` | user: `admin` / pass: `password` / db: `weather_db` |
 | pgAdmin | http://localhost:8080 | `admin@admin.com` / `admin` |
 | Airflow | http://localhost:8085 | see step 3 below |
+| Grafana | http://localhost:3000 | `admin` / `admin` (you'll be prompted to change it on first login) |
 
 ---
 
@@ -101,7 +102,26 @@ Then open http://localhost:8085 and log in with `admin` and the generated passwo
 
 The pipeline fetches all three sources, aggregates to daily averages, and builds the `wind_combined` table. It re-runs automatically every 10 minutes to refresh the ECMWF forecast data.
 
-### 5. View data in pgAdmin
+### 5. Visualize data in Grafana
+
+1. Open http://localhost:3000
+2. Log in with `admin` / `admin` (you'll be asked to set a new password on first login)
+3. Go to **Dashboards** in the left sidebar — the **Wind Data** dashboard is pre-loaded automatically
+
+The dashboard contains four panels, all reading from the `Wind` table in PostgreSQL:
+
+| Panel | What you see |
+|---|---|
+| **Wind Speeds — All Sources** | All 5 wind speed series on one chart for easy comparison |
+| **GEO (KMI) Wind Speeds** | KMI station data at 10 m and 30 m height |
+| **Ukkel Wind Speeds** | Kaggle Uccle station data at 10 m and 30 m height |
+| **ECMWF Wind Speed** | ECMWF forecast wind speed at 10 m |
+
+**Important:** where a source has no data for a date (NULL), the line is intentionally broken — no value is invented to bridge the gap.
+
+You can adjust the time range with the picker in the top-right corner of the dashboard. The dashboard auto-refreshes every 5 minutes, so it stays up to date as Airflow keeps adding data.
+
+### 6. View data in pgAdmin
 
 1. Open http://localhost:8080
 2. Log in with `admin@admin.com` / `admin`
