@@ -1,0 +1,215 @@
+{
+  "__inputs": [],
+  "__requires": [
+    { "type": "grafana", "id": "grafana", "name": "Grafana", "version": "10.0.0" },
+    { "type": "datasource", "id": "postgres", "name": "PostgreSQL", "version": "1.0.0" },
+    { "type": "panel", "id": "timeseries", "name": "Time series", "version": "" }
+  ],
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": { "type": "postgres", "uid": "postgres-wind" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Energie",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 80 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 14, "w": 24, "x": 0, "y": 0 },
+      "id": 1,
+      "options": {
+        "legend": {
+          "calcs": ["mean", "min", "max", "last"],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "postgres-wind" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  tijd::timestamp AS \"time\",\n  \"Energie vlaanderen zon\" AS \"Vlaanderen Zon\",\n  \"Energie vlaanderen wind\" AS \"Vlaanderen Wind\",\n  \"Elia totaal\" AS \"Elia Totaal\",\n  \"kaggle prive\" AS \"Kaggle Privé\",\n  \"kaggle openbaar\" AS \"Kaggle Openbaar\"\nFROM consumptie\nWHERE $__timeFilter(tijd::timestamp)\nORDER BY 1",
+          "refId": "A",
+          "sql": { "columns": [], "groupBy": [], "limit": 50 }
+        }
+      ],
+      "title": "Consumptie — Alle Bronnen",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "postgres-wind" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Energie",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 80 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 14 },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": ["mean", "min", "max"],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "postgres-wind" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  tijd::timestamp AS \"time\",\n  \"Energie vlaanderen zon\" AS \"Vlaanderen Zon\",\n  \"Energie vlaanderen wind\" AS \"Vlaanderen Wind\"\nFROM consumptie\nWHERE $__timeFilter(tijd::timestamp)\nORDER BY 1",
+          "refId": "A",
+          "sql": { "columns": [], "groupBy": [], "limit": 50 }
+        }
+      ],
+      "title": "Energie Vlaanderen (Zon & Wind)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "postgres-wind" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Energie",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 80 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 14 },
+      "id": 3,
+      "options": {
+        "legend": {
+          "calcs": ["mean", "min", "max"],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "postgres-wind" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  tijd::timestamp AS \"time\",\n  \"Elia totaal\" AS \"Elia Totaal\",\n  \"kaggle prive\" AS \"Kaggle Privé\",\n  \"kaggle openbaar\" AS \"Kaggle Openbaar\"\nFROM consumptie\nWHERE $__timeFilter(tijd::timestamp)\nORDER BY 1",
+          "refId": "A",
+          "sql": { "columns": [], "groupBy": [], "limit": 50 }
+        }
+      ],
+      "title": "Elia & Kaggle Consumptie",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "5m",
+  "schemaVersion": 38,
+  "tags": ["consumptie", "energie"],
+  "templating": { "list": [] },
+  "time": { "from": "now-2y", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Consumptie Data",
+  "uid": "consumptie-dashboard",
+  "version": 1
+}

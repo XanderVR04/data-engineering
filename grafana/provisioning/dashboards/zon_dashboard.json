@@ -1,0 +1,228 @@
+{
+  "__inputs": [],
+  "__requires": [
+    { "type": "grafana", "id": "grafana", "name": "Grafana", "version": "10.0.0" },
+    { "type": "datasource", "id": "postgres", "name": "PostgreSQL", "version": "1.0.0" },
+    { "type": "panel", "id": "timeseries", "name": "Time series", "version": "" }
+  ],
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": { "type": "postgres", "uid": "postgres-wind" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Straling (W/m²)",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 80 }
+            ]
+          },
+          "unit": "wm2"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Open-Meteo" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "#FF9830", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "KMI" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "#FADE2A", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Kaggle" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "#37872D", "mode": "fixed" } }]
+          }
+        ]
+      },
+      "gridPos": { "h": 14, "w": 24, "x": 0, "y": 0 },
+      "id": 1,
+      "options": {
+        "legend": {
+          "calcs": ["mean", "min", "max", "last"],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "postgres-wind" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  datum::timestamp AS \"time\",\n  open_meteo_radiation AS \"Open-Meteo\",\n  kmi_radiation_avg AS \"KMI\",\n  kaggle_radiation_avg AS \"Kaggle\"\nFROM zon\nWHERE $__timeFilter(datum::timestamp)\nORDER BY 1",
+          "refId": "A",
+          "sql": { "columns": [], "groupBy": [], "limit": 50 }
+        }
+      ],
+      "title": "Zonnestraling — Alle Bronnen",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "postgres-wind" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Straling (W/m²)",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 80 }
+            ]
+          },
+          "unit": "wm2"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 14 },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": ["mean", "min", "max"],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "postgres-wind" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  datum::timestamp AS \"time\",\n  open_meteo_radiation AS \"Open-Meteo\",\n  kmi_radiation_avg AS \"KMI\"\nFROM zon\nWHERE $__timeFilter(datum::timestamp)\nORDER BY 1",
+          "refId": "A",
+          "sql": { "columns": [], "groupBy": [], "limit": 50 }
+        }
+      ],
+      "title": "Open-Meteo & KMI Straling",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "postgres-wind" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "#37872D" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Straling (W/m²)",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 80 }
+            ]
+          },
+          "unit": "wm2"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 14 },
+      "id": 3,
+      "options": {
+        "legend": {
+          "calcs": ["mean", "min", "max"],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "postgres-wind" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  datum::timestamp AS \"time\",\n  kaggle_radiation_avg AS \"Kaggle\"\nFROM zon\nWHERE $__timeFilter(datum::timestamp)\nORDER BY 1",
+          "refId": "A",
+          "sql": { "columns": [], "groupBy": [], "limit": 50 }
+        }
+      ],
+      "title": "Kaggle Straling",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "5m",
+  "schemaVersion": 38,
+  "tags": ["zon", "straling"],
+  "templating": { "list": [] },
+  "time": { "from": "now-5y", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Zon Data",
+  "uid": "zon-dashboard",
+  "version": 1
+}
