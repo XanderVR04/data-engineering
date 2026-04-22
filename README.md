@@ -131,7 +131,7 @@ Open http://localhost:8085 and find the following DAGs:
 
 1. Find the **`wind_pipeline`** DAG
 2. Toggle it **on** (unpause)
-3. Click ▶ **Trigger DAG** to run it immediately
+3. Click **Trigger DAG** to run it immediately
 
 The pipeline fetches all three wind sources, aggregates them to daily averages, builds the `wind` table, and then drops the intermediate tables. It re-runs automatically every 10 minutes to refresh the ECMWF forecast data.
 
